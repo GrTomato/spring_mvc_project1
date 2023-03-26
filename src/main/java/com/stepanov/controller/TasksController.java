@@ -1,5 +1,6 @@
 package com.stepanov.controller;
 
+import com.stepanov.domain.Status;
 import com.stepanov.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ public class TasksController {
 
         int pageSize = 5;
         view.addObject("countPages", this.calculatePagesNumber(pageSize));
+        view.addObject("taskStatuses", Status.values());
 
         view.addObject("tasks", service.getAllByPage(Integer.parseInt(pageNumber), pageSize));
         view.setViewName("tasks");

@@ -1,7 +1,7 @@
 package com.stepanov.domain;
 
 public enum Status {
-    IN_PROGRESS,
+    PROGRESS,
     DONE,
     PAUSED
 }
