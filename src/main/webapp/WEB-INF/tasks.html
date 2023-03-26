@@ -5,8 +5,25 @@
     <title>Tasks List</title>
 </head>
 <body>
-  <div th:each="task : ${tasks}">
-      <p th:text="${task.getDescription()}">Task Description</p>
-  </div>
+    <div th:switch="${ not#lists.isEmpty(tasks)}">
+        <table th:case="true">
+            <tr>
+                <th>Task ID</th>
+                <th>Task Description</th>
+                <th>Task Status</th>
+            </tr>
+            <tr th:each="task : ${tasks}">
+                <td th:text="${task.getId()}">Task ID</td>
+                <td th:text="${task.getDescription()}">Task Description</td>
+                <td th:text="${task.getStatus()}">Task Status</td>
+                <td>Update</td>
+                <td>Delete</td>
+            </tr>
+        </table>
+        <span th:case="false">No tasks have been found for you!</span>
+    </div>
+    <span th:each="i : ${#numbers.sequence(1, countPages)}">
+        <a th:with="linkPage=${i}-1" th:href="${'/tasks?page='+ linkPage}" th:text="${i}">Page Number</a>
+    </span>
 </body>
 </html>
