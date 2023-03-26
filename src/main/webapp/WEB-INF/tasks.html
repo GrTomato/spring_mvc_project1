@@ -17,8 +17,16 @@
                 <td th:text="${task.getId()}">Task ID</td>
                 <td th:text="${task.getDescription()}">Task Description</td>
                 <td th:text="${task.getStatus()}">Task Status</td>
-                <td>Update</td>
-                <td>Delete</td>
+                <td>
+                    <form action="#" th:action="${'/tasks/edit/'}+${task.getId()}" method="post">
+                        <button id="editButton" name="edit" class="btn btn-primary">Edit</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="#" th:action="${'/tasks/delete/'}+${task.getId()}" method="post">
+                        <button id="deleteButton" name="delete" class="btn btn-primary">Delete</button>
+                    </form>
+                </td>
             </tr>
         </table>
         <span th:case="false">No tasks have been found for you!</span>
@@ -29,14 +37,22 @@
 
     <p>Sample text</p>
     <form class="form-horizontal">
-        <fieldset>
-            <div class="form-group">
-                <input id="textinput" name="textinput" type="text" placeholder="Input Task Description">
-                <select id="selectbasic" name="selectbasic">
+        <fieldset th:switch="${taskToEdit!=null}">
+            <!-- if task already exists --->
+            <div class="form-group" th:case="true">
+                <input id="textInputTaskExists" name="textInputTaskExists" type="text" th:placeholder="${taskToEdit.getDescription()}">
+                <select id="SelectBasicTaskExists" name="selectbasic">
+                    <option th:each="status : ${taskStatuses}" th:text="${status.name()}" th:selected="${taskToEdit.getStatus()==status}">Option</option>
+                </select>
+            </div>
+            <!-- if task does not already exist --->
+            <div class="form-group" th:case="false">
+                <input id="textInputTaskNotExists" name="textInputTaskExists" type="text" placeholder="Input Task Description">
+                <select id="SelectBasicTaskNotExists" name="selectbasic">
                     <option th:each="status : ${taskStatuses}" th:text="${status.name()}">Option</option>
                 </select>
-                <button id="singlebutton" name="singlebutton" class="btn btn-primary">Button</button>
             </div>
+            <button id="saveButton" name="save" class="btn btn-primary">Save</button>
         </fieldset>
     </form>
 
