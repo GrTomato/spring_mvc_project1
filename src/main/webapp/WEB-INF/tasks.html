@@ -21,12 +21,12 @@
                 <td th:text="${task.getDescription()}">Task Description</td>
                 <td th:text="${task.getStatus()}">Task Status</td>
                 <td>
-                    <form action="#" th:action="${'/tasks/'}+${task.getId()}" method="get">
+                    <form action="#" th:action="@{/tasks/{taskId}(taskId=${task.getId()})}" method="get">
                         <button id="editButton" name="edit" class="btn btn-info">Edit</button>
                     </form>
                 </td>
                 <td>
-                    <form action="#" th:action="${'/tasks/delete/'}+${task.getId()}" method="post">
+                    <form action="#" th:action="@{/tasks/delete/{taskId}(taskId=${task.getId()})}" method="post">
                         <button id="deleteButton" name="delete" class="btn btn-danger">Delete</button>
                     </form>
                 </td>
@@ -37,7 +37,7 @@
 
     <div class="text-center">
         <span th:each="i : ${#numbers.sequence(1, countPages)}">
-            <a th:with="linkPage=${i}-1" th:href="${'/tasks/page/'+ linkPage}" th:text="${i}">Page Number</a>
+            <a th:with="linkPage=${i}-1" th:href="@{/tasks/page/{pageNumber}(pageNumber=${linkPage})}" th:text="${i}">Page Number</a>
         </span>
     </div>
     <br>

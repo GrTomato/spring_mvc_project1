@@ -91,7 +91,7 @@
 
 
   <build>
-    <finalName>com.stepanov.mvc_website_tutorial</finalName>
+    <finalName>crud_app</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

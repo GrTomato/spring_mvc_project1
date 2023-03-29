@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  server:
+    build: .
+    ports:
+      - '8080:8080'
+    depends_on:
+      database:
+          condition: service_healthy
+
+  database:
+    image: mysql:8.0.32
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3306:3306'
+    volumes:
+      - my-database:/var/lib/mysql
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=root --execute \"SELECT 1;\""
+      retries: 3
+      interval: 5s
+      timeout: 30s
+
+volumes:
+  my-database:
+

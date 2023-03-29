@@ -64,7 +64,7 @@ public class TasksController {
             @PathVariable String number
     ){
         Cookie pageNumber = new Cookie("pageNumber", number);
-        pageNumber.setPath("/tasks");
+        pageNumber.setPath("/crud_app/tasks");
         response.addCookie(pageNumber);
         return "redirect:/tasks";
     }
