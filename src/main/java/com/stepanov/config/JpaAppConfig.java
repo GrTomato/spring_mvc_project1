@@ -58,9 +58,7 @@ public class JpaAppConfig {
         config.setPassword(this.password);
         config.setPoolName("My Hikari pool");
         config.setDriverClassName(this.driverClassName);
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setMaximumPoolSize(5);
         return (DataSource) new HikariDataSource(config);
     }
 }
