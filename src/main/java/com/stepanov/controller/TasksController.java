@@ -3,67 +3,108 @@ package com.stepanov.controller;
 import com.stepanov.domain.Status;
 import com.stepanov.domain.Task;
 import com.stepanov.service.TaskService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/tasks")
 public class TasksController {
 
     private final TaskService service;
 
-    @GetMapping("/tasks")
-    public ModelAndView getAllTasks(
+    @GetMapping("")
+    public ModelAndView getTasksList(
             ModelAndView view,
-            @RequestParam(name = "taskToEditId", required = false) String taskToEditId,
-            @RequestParam(name = "page", defaultValue = "0") String pageNumber){
-
-        int pageSize = 5;
-        List<Task> tasks = service.getAllByPage(Integer.parseInt(pageNumber), pageSize);
-
-        Task taskToEdit = null;
-        if (Objects.nonNull(taskToEditId)){
-            Optional<Task> taskById = service.findById(Long.parseLong(taskToEditId));
-            taskToEdit = taskById.orElse(null);
-        }
-
-        view.addObject("countPages", this.calculatePagesNumber(pageSize));
+            HttpSession session,
+            @CookieValue(name = "pageNumber", defaultValue = "0") String pageNumber,
+            @CookieValue(name = "pageSize", defaultValue = "5") String pageSize
+    ){
+        view.addObject("taskToEdit", new Task());
+        view.addObject("countPages", (int) Math.ceil((double)service.getTasksCount() / Long.parseLong(pageSize)));
         view.addObject("taskStatuses", Status.values());
-        view.addObject("tasks", tasks);
-        view.addObject("taskToEdit", taskToEdit);
-
+        view.addObject("tasks", service.getAllByPage( Integer.parseInt(pageNumber), Integer.parseInt(pageSize)));
         view.setViewName("tasks");
         return view;
     }
 
-    @PostMapping("/tasks/edit/{taskId}")
-    public ModelAndView showTaskToEdit(
+    @GetMapping("/{id}")
+    public ModelAndView getTasksListEditOne(
             ModelAndView view,
-            @PathVariable String taskId){
-        view.getModel().put("taskToEditId", taskId);
-        view.setViewName("redirect:/tasks");
+            @PathVariable String id,
+            @CookieValue(name = "pageNumber", defaultValue = "0") String pageNumber,
+            @CookieValue(name = "pageSize", defaultValue = "5") String pageSize
+    ){
+        Task foundTask = service.findById(Long.parseLong(id));
+        if (Objects.nonNull(foundTask)){
+            view.addObject("taskToEdit", foundTask);
+            view.addObject("countPages", (int) Math.ceil((double)service.getTasksCount() / Long.parseLong(pageSize)));
+            view.addObject("taskStatuses", Status.values());
+            view.addObject("tasks", service.getAllByPage(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)));
+            view.setViewName("tasks");
+        } else {
+            view.setViewName("redirect:/tasks");
+        }
         return view;
     }
 
-    @PostMapping("/tasks/delete/{taskId}")
-    public ModelAndView deleteTaskById(
-            ModelAndView view,
-            @PathVariable String taskId){
-        service.deleteById(Long.parseLong(taskId));
-        view.setViewName("redirect:/tasks");
-        return view;
+    @GetMapping("/page/{number}")
+    public String changePage(
+            HttpServletResponse response,
+            @PathVariable String number
+    ){
+        Cookie pageNumber = new Cookie("pageNumber", number);
+        pageNumber.setPath("/tasks");
+        response.addCookie(pageNumber);
+        return "redirect:/tasks";
     }
 
-    private Long calculatePagesNumber(int pageSize){
-        return service.count() / pageSize;
+    @PostMapping("/{id}")
+    public String updateTask(
+            Task taskToEdit
+    ){
+
+        boolean updateSuccess = service.update(taskToEdit);
+        if (!updateSuccess){
+            log.warn("Submit error: Task %s was not updated correctly.".formatted(taskToEdit.toString()));
+        }
+
+        return "redirect:/tasks";
+    }
+
+    @PostMapping("")
+    public String createTask(
+            @ModelAttribute Task taskToEdit
+    ){
+        boolean saveSuccess = service.save(taskToEdit);
+        if (!saveSuccess){
+            log.warn("Submit error: Task %s was not saved correctly.".formatted(taskToEdit.toString()));
+        }
+        return "redirect:/tasks";
+    }
+
+    @PostMapping("/delete/{taskId}")
+    public ModelAndView deleteTask(
+            ModelAndView view,
+            @PathVariable String taskId){
+
+        boolean deleteSuccess = service.deleteById(Long.valueOf(taskId));
+        if (!deleteSuccess){
+            log.warn("Delete error: Task %s was not found during update.".formatted(taskId.toString()));
+        }
+
+        view.setViewName("redirect:/tasks");
+        return view;
     }
 
 }

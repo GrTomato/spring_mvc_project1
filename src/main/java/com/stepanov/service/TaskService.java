@@ -19,11 +19,12 @@ public class TaskService {
     @Autowired
     private final TaskDao taskDao;
 
-    public Optional<Task> findById(Long id){
-        return taskDao.findById(id);
+    public Task findById(Long id){
+        Optional<Task> taskById = taskDao.findById(id);
+        return taskById.orElse(null);
     }
 
-    public Long count(){ return taskDao.count(); }
+    public Long getTasksCount(){ return taskDao.count(); }
 
     public List<Task> getAllByPage(int pageNumber, int pageSize){
         PageRequest pageable = PageRequest.of(pageNumber, pageSize);
@@ -32,14 +33,30 @@ public class TaskService {
     }
 
     @Transactional
-    public void deleteById(Long id){
+    public boolean save(Task task){
+        Task savedTask = taskDao.save(task);
+        return savedTask.getId() != null;
+    }
+
+    @Transactional
+    public boolean update(Task task){
+        Optional<Task> foundById = taskDao.findById(task.getId());
+        if (foundById.isPresent()){
+            Task savedTask = taskDao.save(task);
+            return savedTask.getId() != null;
+        } else {
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean deleteById(Long id){
         Optional<Task> taskById = taskDao.findById(id);
         if(taskById.isPresent()){
-            System.out.println("Task " + taskById.get().getId() + " was deleted.");
-            // taskDao.deleteById(id);
+            taskDao.deleteById(id);
+            return true;
         } else {
-            // change to correct error
-            System.out.println("Task was not deleted because no such task.");
+            return false;
         }
     }
 

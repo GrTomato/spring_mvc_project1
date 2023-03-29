@@ -1,11 +1,11 @@
 package com.stepanov.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "task", schema = "todo")
 public class Task {

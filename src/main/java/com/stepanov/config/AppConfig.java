@@ -51,8 +51,4 @@ public class AppConfig implements WebMvcConfigurer {
         WebMvcConfigurer.super.configureViewResolvers(registry);
     }
 
-//    @Override
-//    public void addViewControllers(ViewControllerRegistry registry) {
-//        registry.addViewController("/").setViewName("tasks");
-//    }
 }
