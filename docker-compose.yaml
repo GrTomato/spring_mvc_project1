@@ -16,6 +16,7 @@ services:
     ports:
       - '3306:3306'
     volumes:
+      - ./src/main/resources/db_dump.sql:/docker-entrypoint-initdb.d/db_dump.sql
       - my-database:/var/lib/mysql
     healthcheck:
       test: "/usr/bin/mysql --user=root --password=root --execute \"SELECT 1;\""
